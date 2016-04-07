@@ -1,6 +1,6 @@
 # playmusic-downloader.py
 Download your library from Google Play Musci using the unoffical gmusicapi.
-The files will be tagged with ID3-tags using eyed3.
+The files will be tagged using eyed3.
 
 ## Getting started
 * `cd playmusic-downloader.py`
