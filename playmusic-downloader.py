@@ -4,9 +4,9 @@
 import sys
 import os
 import getpass
-import urllib
 import urllib2
 import eyed3
+import math
 from gmusicapi import Mobileclient
 
 eyed3.log.setLevel("ERROR")
@@ -49,7 +49,8 @@ def set_id3_tag(song, file_name):
         audifile.tag.album_artist = song['artist']
 
     cover_file = os.path.join(os.path.dirname(file_name), 'cover.jpg')
-    download_album_cover(song['albumArtRef'][0]['url'], cover_file)
+    if not (os.path.exists(cover_file)):
+        download_file(song['albumArtRef'][0]['url'], cover_file)
     if (os.path.exists(cover_file)):
         cover_image = open(cover_file, "rb").read()
         audiofile.tag.images.set(3, cover_image, "image/jpeg")
@@ -57,14 +58,26 @@ def set_id3_tag(song, file_name):
     audiofile.tag.save()
 
 
-def download_album_cover(url, file_name):
-    if url and not (os.path.exists(file_name)):
-        res = urllib2.urlopen(url)
-        fh = open(file_name, "wb")
-        fh.write(res.read())
-        fh.close
+def download_file(url, file_name):
+    res = urllib2.urlopen(url)
+    fh = open(file_name , "wb")
+    fh.write(res.read())
+    fh.close()
 
-        #urllib.request.urlretrieve(url, file_name)
+
+def download_mp3(api, song, file_path):
+    stream_url = api.get_stream_url(song['id'])
+    download_file(stream_url, file_path)
+    set_id3_tag(song, file_path)
+
+
+def setup_directories(output, album_artist, album):
+    if not os.path.exists(output_dir + u"/" + album_artist):
+        os.mkdir(output_dir + "/" + album_artist)
+    if not os.path.exists(output_dir + u"/" + album_artist + u"/" + album):
+        os.mkdir(output_dir + u"/" + album_artist + u"/" + album)
+
+    return os.path.join(os.path.join(output_dir, album_artist), album)
 
 
 def download_song(api, song):
@@ -76,28 +89,21 @@ def download_song(api, song):
     if song['albumArtist']:
         album_artist = song['albumArtist']
 
-    if not os.path.exists(output_dir + u"/" + album_artist):
-        os.mkdir(output_dir + "/" + album_artist)
-    if not os.path.exists(output_dir + u"/" + album_artist + u"/" + album):
-        os.mkdir(output_dir + u"/" + album_artist + u"/" + album)
-
     if song['id']:
-        #output_path = output_dir + "/" + album_artist + "/" + album
-        output_path = os.path.join(os.path.join(output_dir, album_artist), album)
+        output_path = setup_directories(output_dir, album_artist, album)
         file_name = unicode(song['trackNumber']) + u" - "
         file_name +=  artist + u" - " + title + u".mp3"
 
+        file_path = os.path.join(output_path, file_name)
 
-        #urlib.request.urlretrieve(stream_url, output_path+ '/' + file_name)
-        if not (os.path.exists(output_path + '/' + file_name)) or replace_files:
-            stream_url = api.get_stream_url(song['id'])
-            #print (output_path + u'/' + file_name)
-
-            res = urllib2.urlopen(stream_url)
-            fh = open(os.path.join(output_path, file_name) , "wb")
-            fh.write(res.read())
-            fh.close()
-            set_id3_tag(song, os.path.join(output_path, file_name))
+        if not (os.path.exists(file_path)) or replace_files:
+            download_mp3(api, song, file_path)
+        else:
+            song_estimated_size = int(song['estimatedSize'])
+            song_filesize = os.path.getsize(file_path)
+            size_diff = math.sqrt(math.pow((song_filesize - song_estimated_size),2))
+            if size_diff > 600000:
+                download_mp3(api, song, file_path)
 
 
 def download_all_songs(api):
