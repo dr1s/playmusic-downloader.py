@@ -142,6 +142,12 @@ def download_all_songs(api):
 
     print(" ")
 
+def usage():
+    print("usage: playmusicdl [arguments]")
+    print(" -r | --replace : replace already downloaded songs")
+    print(" -o | --output output_dir : directory where files will be stored in")
+    print(" -h | --help : shows this message")
+
 
 def main():
 
@@ -153,7 +159,7 @@ def main():
         sys.exit(2)
     for o, a in opts:
         if o in ("-h", "--help"):
-            #usage()
+            usage()
             sys.exit()
         elif o in ("-o", "--output"):
             global output_dir

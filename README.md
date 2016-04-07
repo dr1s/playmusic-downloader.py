@@ -14,6 +14,10 @@ The files will be tagged using eyed3.
 Will download all music to a directory called `download_dir`.
 If there are any preexisting songs they will be replaced.
 
+    usage: playmusicdl [arguments]
+      -r | --replace: replace already downloaded songs
+      -o | --output output_dir : directory where files will be stored in
+      -h | --help : shows this message
 ## Dependencies
 * gmusicapi
 * eyed3
