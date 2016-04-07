@@ -1,9 +1,9 @@
-# playmusicdownloader.py
-Download your library from Google Play Musci using the unoffical gmusicapi.
+# playmusicdl.py
+Download your library from Google Play Music using the unoffical gmusicapi.
 The files will be tagged using eyed3.
 
 ## Getting started
-* `cd playmusic-downloader.py`
+* `cd playmusicdl.py`
 * `python2 setup.py install`
 * `playmusicdl`
 * Login to Google Play Music
@@ -23,4 +23,4 @@ If there are any preexisting songs they will be replaced.
 * eyed3
 
 ## Uninstall
-`pip uninstall playmusic-downloader.py`
+`pip uninstall playmusicdl.py`
