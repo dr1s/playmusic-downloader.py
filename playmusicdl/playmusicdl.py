@@ -43,11 +43,13 @@ def set_id3_tag(song, file_name):
     audiofile = eyed3.load(file_name)
     audiofile.initTag()
 
+
     audiofile.tag.artist = song['artist']
     audiofile.tag.album = song['album']
     audiofile.tag.title = song['title']
     audiofile.tag.track_num = song['trackNumber']
-    audiofile.tag.year = song['year']
+    if 'year' in song.keys():
+        audiofile.tag.year = song['year']
 
     if song['albumArtist']:
         audiofile.tag.album_artist = song['albumArtist']
@@ -94,14 +96,17 @@ def download_song(api, song):
     artist = replace_characters(song['artist'])
     album = replace_characters(song['album'])
     title = replace_characters(song['title'])
-    year = int(song['year'])
+    year = 0
+    if 'year' in song.keys():
+        year = int(song['year'])
+
     album_artist = artist
 
     if song['albumArtist']:
         album_artist = replace_characters(song['albumArtist'])
 
     if song['id']:
-        output_path = setup_directories(output_dir, album_artist, album, song['year'])
+        output_path = setup_directories(output_dir, album_artist, album, year)
         file_name = unicode(song['trackNumber']) + u" - "
         file_name +=  artist + u" - " + title + u".mp3"
 
@@ -124,8 +129,8 @@ def download_all_songs(api):
 
     for song in library:
         i += 1
-        file_name = unicode(song['trackNumber']) + u" - " + song['artist']
-        file_name += u" - " + song['title']
+        file_name = song['album'] + u" / " + unicode(song['trackNumber'])
+        file_name += u" - " + song['artist'] + u" - " + song['title']
 
         stdout = "\r\033[K[" + unicode(i) + "/" + unicode(library_size) + "]"
         stdout += ": " + file_name

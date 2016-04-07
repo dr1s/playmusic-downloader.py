@@ -10,5 +10,5 @@ setup(
     description='Download all your songs from Google Play Music',
     install_requires=["eyed3", "gmusicapi"],
     packages=find_packages(),
-    #entry_points={'console_scripts': ['playmusic-downloader=playmusic-downloader.py:main']},
+    entry_points={'console_scripts': ['playmusicdl=playmusicdl.playmusicdl:main']},
 )
