@@ -122,23 +122,25 @@ def download_song(api, song):
                 download_mp3(api, song, file_path)
 
 
-def download_all_songs(api):
+def download_all_songs(api, max_files = 0):
     library = api.get_all_songs()
     library_size = len(library)
     i = 0
 
     for song in library:
         i += 1
-        file_name = song['album'] + u" / " + unicode(song['trackNumber'])
-        file_name += u" - " + song['artist'] + u" - " + song['title']
+        file_name = song['artist'] + u" - " + song['album'] + u" / "
+        file_name += unicode(song['trackNumber']) + u" - " + song['title']
 
         stdout = "\r\033[K[" + unicode(i) + "/" + unicode(library_size) + "]"
         stdout += ": " + file_name
 
         sys.stdout.write(stdout)
         sys.stdout.flush()
-
-        download_song(api, song)
+        if (max_files == 0) or (i < max_files):
+            download_song(api, song)
+        else:
+            break
 
     print(" ")
 
@@ -146,13 +148,23 @@ def usage():
     print("usage: playmusicdl [arguments]")
     print(" -r | --replace : replace already downloaded songs")
     print(" -o | --output output_dir : directory where files will be stored in")
+    print(" -m | --max : maximum files to download")
     print(" -h | --help : shows this message")
 
 
 def main():
 
+    print('       .__                                    .__           .___.__')
+    print('______ |  | _____  ___.__. _____  __ __  _____|__| ____   __| _/|  |')
+    print('\____ \|  | \__  \<   |  |/     \|  |  \/  ___/  |/ ___\ / __ | |  |')
+    print('|  |_> >  |__/ __ \\\\___  |  Y Y  \  |  /\___ \|  \  \___/ /_/ | |  |__')
+    print('|   __/|____(____  / ____|__|_|  /____//____  >__|\___  >____ | |____/')
+    print('|__|             \/\/          \/           \/        \/     \/       ')
+    print(' ')
+
+    max_files = 0
     try:
-        opts, args = getopt.getopt(sys.argv[1:], "ho:r", ["help", "output="])
+        opts, args = getopt.getopt(sys.argv[1:], "hmo:r", ["help","max","output=", "replace"])
     except getopt.GetoptError as err:
         print str(err)
         usage()
@@ -168,12 +180,17 @@ def main():
         elif o in ("-r", "--replace"):
             global replace_files
             replace_files = True
+        elif o in ("-m", "--max"):
+            max_files = a
         else:
             assert False, "unhandled option"
 
     api = login()
     if (api):
-        download_all_songs(api)
+        if (max_files):
+            download_all_songs(api, max_files)
+        else:
+            download_all_songs(api)
 
 
 if __name__ == "__main__":
