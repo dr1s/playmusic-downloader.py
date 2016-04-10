@@ -135,7 +135,10 @@ def download_all_songs(api, max_files = 0):
         stdout = "\r\033[K[" + unicode(i) + "/" + unicode(library_size) + "]"
         stdout += ": " + file_name
 
-        sys.stdout.write(stdout)
+        if len(stdout) > 100:
+            sys.stdout.write(stdout[:100])
+        else:
+            sys.stdout.write(stdout)
         sys.stdout.flush()
         if (max_files == 0) or (i < max_files):
             download_song(api, song)
