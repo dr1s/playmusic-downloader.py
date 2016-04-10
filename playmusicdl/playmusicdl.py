@@ -49,12 +49,12 @@ def set_id3_tag(song, file_name):
     audiofile.tag.title = song['title']
     audiofile.tag.track_num = song['trackNumber']
     if 'year' in song.keys():
-        audiofile.tag.year = song['year']
+        audiofile.tag.year = int(song['year'])
 
     if song['albumArtist']:
         audiofile.tag.album_artist = song['albumArtist']
     else:
-        audifile.tag.album_artist = song['artist']
+        audiofile.tag.album_artist = song['artist']
 
     cover_file = os.path.join(os.path.dirname(file_name), 'cover.jpg')
     if not (os.path.exists(cover_file)):
@@ -164,7 +164,7 @@ def main():
 
     max_files = 0
     try:
-        opts, args = getopt.getopt(sys.argv[1:], "hmo:r", ["help","max","output=", "replace"])
+        opts, args = getopt.getopt(sys.argv[1:], "hm:o:r", ["help","max","output=", "replace"])
     except getopt.GetoptError as err:
         print str(err)
         usage()
