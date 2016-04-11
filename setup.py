@@ -2,7 +2,7 @@ from setuptools import setup, find_packages
 
 
 setup(
-    name='playmusic-downloader.py',
+    name='playmusicdl',
     version='0.1',
     url='https://github.com/dr1s/playmusicdl.py',
     author='drs',

@@ -20,10 +20,10 @@ If there are any preexisting songs they will be replaced.
       -m | --max : maximum files to download
       -h | --help : shows this message
       -u | --update-id3 : update id3 tags on already downloaded files
-      
+
 ## Dependencies
 * gmusicapi
 * eyed3
 
 ## Uninstall
-`pip uninstall playmusicdl.py`
+`pip uninstall playmusicdl`
