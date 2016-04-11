@@ -73,12 +73,13 @@ def set_id3_tag(song, file_name):
     audiofile.tag.album = song['album']
     audiofile.tag.title = song['title']
     audiofile.tag.track_num = song['trackNumber']
-    audiofile.tag.disc_bum = song['discNumber']
+    audiofile.tag.disc_num = song['discNumber']
     audiofile.tag.genre = song['genre']
     if 'year' in song.keys():
         #Check if the year is greater then 1900 because some have an invalid year
         if int(song['year']) > 1900:
             audiofile.tag.release_date = song['year']
+            audiofile.tag.recording_date = song['year']
 
 
     if song['albumArtist']:
