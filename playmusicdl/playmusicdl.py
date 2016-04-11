@@ -36,8 +36,11 @@ def login():
             return apiMobileClient
         else:
             print("Password not set")
+            sys.exit(1)
     else:
-        print()
+        print("User not set")
+        sys.exit(1)
+        
 
 def get_id3_genre_id(genre_name):
     scriptpath = os.path.dirname(os.path.realpath(__file__))
