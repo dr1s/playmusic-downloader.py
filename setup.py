@@ -10,5 +10,9 @@ setup(
     description='Download all your songs from Google Play Music',
     install_requires=["eyed3", "gmusicapi"],
     packages=find_packages(),
+    include_package_data = True,
+    package_data = {
+            '': ['genre_ids.json']
+        },
     entry_points={'console_scripts': ['playmusicdl=playmusicdl.playmusicdl:main']},
 )

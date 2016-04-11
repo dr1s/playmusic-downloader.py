@@ -8,6 +8,7 @@ import urllib2
 import eyed3
 import math
 import getopt
+import json
 from gmusicapi import Mobileclient
 
 eyed3.log.setLevel("ERROR")
@@ -38,23 +39,50 @@ def login():
     else:
         print()
 
+def get_id3_genre_id(genre_name):
+    scriptpath = os.path.dirname(os.path.realpath(__file__))
+    genre_id = None
+    with open(scriptpath + "/genre_ids.json") as genre_ids_file:
+        try:
+            genre_ids
+        except:
+            genre_ids = json.load(genre_ids_file)
+        else:
+            genre_ids = json.update(json.load(genre_ids_file))
+
+    if genre_name in genre_ids.keys():
+        genre_id = genre_ids[genre_name]
+    elif '/' in genre_name:
+        genre_array = genre_name.split('/')
+        if genre_array[0] in genre_ids.keys():
+            genre_id = genre_ids[genre_array[0]]
+        elif genre_array[1] in genre_ids.keys():
+            genre_id = genre_ids[genre_array[1]]
+
+    return genre_id
+
 
 def set_id3_tag(song, file_name):
     audiofile = eyed3.load(file_name)
     audiofile.initTag()
 
-
     audiofile.tag.artist = song['artist']
     audiofile.tag.album = song['album']
     audiofile.tag.title = song['title']
     audiofile.tag.track_num = song['trackNumber']
+    audiofile.tag.disc_bum = song['discNumber']
+    audiofile.tag.genre = song['genre']
     if 'year' in song.keys():
-        audiofile.tag.year = int(song['year'])
+        audiofile.tag.release_date = song['year']
 
     if song['albumArtist']:
         audiofile.tag.album_artist = song['albumArtist']
     else:
         audiofile.tag.album_artist = song['artist']
+
+    genre_id = get_id3_genre_id(song['genre'])
+    if genre_id:
+        audiofile.tag.genre = genre_id
 
     cover_file = os.path.join(os.path.dirname(file_name), 'cover.jpg')
     if not (os.path.exists(cover_file)):
