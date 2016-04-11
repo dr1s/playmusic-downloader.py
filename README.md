@@ -19,6 +19,8 @@ If there are any preexisting songs they will be replaced.
       -o | --output output_dir : directory where files will be stored in
       -m | --max : maximum files to download
       -h | --help : shows this message
+      -u | --update-id3 : update id3 tags on already downloaded files
+      
 ## Dependencies
 * gmusicapi
 * eyed3

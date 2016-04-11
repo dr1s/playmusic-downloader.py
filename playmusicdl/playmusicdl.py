@@ -40,7 +40,7 @@ def login():
     else:
         print("User not set")
         sys.exit(1)
-        
+
 
 def get_id3_genre_id(genre_name):
     scriptpath = os.path.dirname(os.path.realpath(__file__))
@@ -76,7 +76,10 @@ def set_id3_tag(song, file_name):
     audiofile.tag.disc_bum = song['discNumber']
     audiofile.tag.genre = song['genre']
     if 'year' in song.keys():
-        audiofile.tag.release_date = song['year']
+        #Check if the year is greater then 1900 because some have an invalid year
+        if int(song['year']) > 1900:
+            audiofile.tag.release_date = song['year']
+
 
     if song['albumArtist']:
         audiofile.tag.album_artist = song['albumArtist']
@@ -116,12 +119,32 @@ def setup_directories(output, album_artist, album, year):
     artist_dir = os.path.join(output, album_artist)
     if not os.path.exists(artist_dir):
         os.mkdir(artist_dir)
-    album_dir = os.path.join(artist_dir, unicode(year) + " - " + album)
+    album_dir = os.path.join(artist_dir, unicode(year) +  u" - " + album)
     if not os.path.exists(album_dir):
         os.mkdir(album_dir)
 
     return album_dir
 
+def get_local_path(song):
+    artist = replace_characters(song['artist'])
+    album = replace_characters(song['album'])
+    title = replace_characters(song['title'])
+    year = 0
+    if 'year' in song.keys():
+        year = int(song['year'])
+
+    album_artist = artist
+
+    if song['albumArtist']:
+        album_artist = replace_characters(song['albumArtist'])
+
+    output_path = setup_directories(output_dir, album_artist, album, year)
+    file_name = unicode(song['trackNumber']) + u" - "
+    file_name +=  artist + u" - " + title + u".mp3"
+
+    file_path = os.path.join(output_path, file_name)
+
+    return file_path
 
 def download_song(api, song):
     artist = replace_characters(song['artist'])
@@ -138,10 +161,8 @@ def download_song(api, song):
 
     if song['id']:
         output_path = setup_directories(output_dir, album_artist, album, year)
-        file_name = unicode(song['trackNumber']) + u" - "
-        file_name +=  artist + u" - " + title + u".mp3"
 
-        file_path = os.path.join(output_path, file_name)
+        file_path = get_local_path(song)
 
         if not (os.path.exists(file_path)) or replace_files:
             download_mp3(api, song, file_path)
@@ -152,8 +173,13 @@ def download_song(api, song):
             if size_diff > 600000:
                 download_mp3(api, song, file_path)
 
+def update_song_id3(song):
+    file_path = get_local_path(song)
+    if (os.path.exists(file_path)):
+        set_id3_tag(song, file_path)
 
-def download_all_songs(api, max_files = 0):
+
+def process_library(api, max_files = 0, update_id3 = False):
     library = api.get_all_songs()
     library_size = len(library)
     i = 0
@@ -171,7 +197,11 @@ def download_all_songs(api, max_files = 0):
         else:
             sys.stdout.write(stdout)
         sys.stdout.flush()
-        if (max_files == 0) or (i < max_files):
+        if update_id3:
+            print("Updating id3 tags from Google Play Music")
+            update_song_id3(song)
+        elif (max_files == 0) or (i < max_files):
+            print("Downloading songs from Google Play Music")
             download_song(api, song)
         else:
             break
@@ -184,7 +214,7 @@ def usage():
     print(" -o | --output output_dir : directory where files will be stored in")
     print(" -m | --max : maximum files to download")
     print(" -h | --help : shows this message")
-
+    print(" -u | --update-id3 : update id3 tags on already downloaded files")
 
 def main():
 
@@ -196,9 +226,10 @@ def main():
     print('|__|             \/\/          \/           \/        \/     \/       ')
     print(' ')
 
+    update_id3 = False
     max_files = 0
     try:
-        opts, args = getopt.getopt(sys.argv[1:], "hm:o:r", ["help","max","output=", "replace"])
+        opts, args = getopt.getopt(sys.argv[1:], "hm:o:ru", ["help", "max", "output=", "replace", "update-id3"])
     except getopt.GetoptError as err:
         print str(err)
         usage()
@@ -216,15 +247,15 @@ def main():
             replace_files = True
         elif o in ("-m", "--max"):
             max_files = a
+        elif o in ("-u", "--update-id3"):
+            update_id3 = True
         else:
             assert False, "unhandled option"
 
     api = login()
     if (api):
-        if (max_files):
-            download_all_songs(api, max_files)
-        else:
-            download_all_songs(api)
+        process_library(api, max_files, update_id3)
+
 
 
 if __name__ == "__main__":
