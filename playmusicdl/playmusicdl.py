@@ -113,55 +113,53 @@ def download_mp3(api, song, file_path):
     set_id3_tag(song, file_path)
 
 
-def setup_directories(output, album_artist, album, year):
+def setup_directories(output, song):
     if not os.path.exists(output):
         os.mkdir(output)
-    artist_dir = os.path.join(output, album_artist)
+
+    artist_dir = get_local_artist_path(song)
     if not os.path.exists(artist_dir):
         os.mkdir(artist_dir)
-    album_dir = os.path.join(artist_dir, unicode(year) +  u" - " + album)
+
+    album_dir = get_local_album_path(song)
     if not os.path.exists(album_dir):
         os.mkdir(album_dir)
 
-    return album_dir
 
-def get_local_path(song):
-    artist = replace_characters(song['artist'])
-    album = replace_characters(song['album'])
-    title = replace_characters(song['title'])
+def get_local_artist_path(song):
+    album_artist = replace_characters(song['artist'])
+    if song['albumArtist']:
+        album_artist = replace_characters(song['albumArtist'])
+    artist_dir = os.path.join(output_dir, album_artist)
+
+    return artist_dir
+
+
+def get_local_album_path(song):
+    artist_dir = get_local_artist_path(song)
+
     year = 0
     if 'year' in song.keys():
         year = int(song['year'])
 
-    album_artist = artist
-
-    if song['albumArtist']:
-        album_artist = replace_characters(song['albumArtist'])
-
-    artist_dir = os.path.join(output_dir, album_artist)
+    album = song['album']
     album_dir = os.path.join(artist_dir, unicode(year) +  u" - " + album)
+
+    return album_dir
+
+def get_local_path(song):
+    album_dir = get_local_album_path(song)
     file_name = unicode(song['trackNumber']) + u" - "
-    file_name +=  artist + u" - " + title + u".mp3"
+    file_name +=  song['artist'] + u" - " + song['title'] + u".mp3"
 
     file_path = os.path.join(album_dir, file_name)
 
     return file_path
 
+
 def download_song(api, song):
-    artist = replace_characters(song['artist'])
-    album = replace_characters(song['album'])
-    title = replace_characters(song['title'])
-    year = 0
-    if 'year' in song.keys():
-        year = int(song['year'])
-
-    album_artist = artist
-
-    if song['albumArtist']:
-        album_artist = replace_characters(song['albumArtist'])
-
     if song['id']:
-        output_path = setup_directories(output_dir, album_artist, album, year)
+        output_path = setup_directories(output_dir, song)
 
         file_path = get_local_path(song)
 
@@ -173,6 +171,7 @@ def download_song(api, song):
             size_diff = math.sqrt(math.pow((song_filesize - song_estimated_size), 2))
             if size_diff > 600000:
                 download_mp3(api, song, file_path)
+
 
 def update_song_id3(song):
     file_path = get_local_path(song)
@@ -207,6 +206,7 @@ def process_library(api, max_files = 0, update_id3 = False):
 
     print(" ")
 
+
 def usage():
     print("usage: playmusicdl [arguments]")
     print(" -r | --replace : replace already downloaded songs")
@@ -215,8 +215,8 @@ def usage():
     print(" -h | --help : shows this message")
     print(" -u | --update-id3 : update id3 tags on already downloaded files")
 
-def main():
 
+def main():
     print('       .__                                    .__           .___.__')
     print('______ |  | _____  ___.__. _____  __ __  _____|__| ____   __| _/|  |')
     print('\____ \|  | \__  \<   |  |/     \|  |  \/  ___/  |/ ___\ / __ | |  |')
