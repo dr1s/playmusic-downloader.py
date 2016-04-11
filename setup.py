@@ -4,7 +4,7 @@ from setuptools import setup, find_packages
 setup(
     name='playmusic-downloader.py',
     version='0.1',
-    url='https://github.com/dr1s/playmusic-downloader.py',
+    url='https://github.com/dr1s/playmusicdl.py',
     author='drs',
     license='MIT',
     description='Download all your songs from Google Play Music',
