@@ -18,7 +18,7 @@ replace_files = False
 
 
 def replace_characters(text):
-    result = text.replace(u'/','-')
+    result = text.replace(u'/',u'-')
     return result
 
 
@@ -229,7 +229,8 @@ def main():
     update_id3 = False
     max_files = 0
     try:
-        opts, args = getopt.getopt(sys.argv[1:], "hm:o:ru", ["help", "max", "output=", "replace", "update-id3"])
+        long = ["help", "max", "output=", "replace", "update-id3"]
+        opts, args = getopt.getopt(sys.argv[1:], "hm:o:ru", long )
     except getopt.GetoptError as err:
         print str(err)
         usage()
