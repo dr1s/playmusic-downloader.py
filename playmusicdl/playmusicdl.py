@@ -138,11 +138,12 @@ def get_local_path(song):
     if song['albumArtist']:
         album_artist = replace_characters(song['albumArtist'])
 
-    output_path = setup_directories(output_dir, album_artist, album, year)
+    artist_dir = os.path.join(output_dir, album_artist)
+    album_dir = os.path.join(artist_dir, unicode(year) +  u" - " + album)
     file_name = unicode(song['trackNumber']) + u" - "
     file_name +=  artist + u" - " + title + u".mp3"
 
-    file_path = os.path.join(output_path, file_name)
+    file_path = os.path.join(album_dir, file_name)
 
     return file_path
 
@@ -198,10 +199,8 @@ def process_library(api, max_files = 0, update_id3 = False):
             sys.stdout.write(stdout)
         sys.stdout.flush()
         if update_id3:
-            print("Updating id3 tags from Google Play Music")
             update_song_id3(song)
         elif (max_files == 0) or (i < max_files):
-            print("Downloading songs from Google Play Music")
             download_song(api, song)
         else:
             break
