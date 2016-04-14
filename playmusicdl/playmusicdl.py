@@ -143,15 +143,17 @@ def get_local_album_path(song):
     if 'year' in song.keys():
         year = int(song['year'])
 
-    album = song['album']
+    album = replace_characters(song['album'])
     album_dir = os.path.join(artist_dir, unicode(year) +  u" - " + album)
 
     return album_dir
 
 def get_local_path(song):
     album_dir = get_local_album_path(song)
+    artist = replace_characters(song['artist'])
+    title = replace_characters(song['title'])
     file_name = unicode(song['trackNumber']) + u" - "
-    file_name +=  song['artist'] + u" - " + song['title'] + u".mp3"
+    file_name +=  artist + u" - " + title + u".mp3"
 
     file_path = os.path.join(album_dir, file_name)
 
